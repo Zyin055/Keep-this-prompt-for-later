@@ -6,9 +6,11 @@ This allows you to generate massive amounts of low quality images, then select w
 Detailed help can be found in the "Keep this prompt for later - Help" expandable section in the scripts section of the Web UI.
 
 ## Screenshots
-Adds a new "↙️ Keep this prompt for later" button in the image gallery and the fullscreen image viewer
+Adds a new "↙️ Keep this prompt for later" button in the image gallery
 
 ![gallery](https://i.imgur.com/uIDykny.jpg)
+
+And the fullscreen image viewer
 
 ![fullscreen gallery button](https://i.imgur.com/8ckT4tp.jpg)
 
