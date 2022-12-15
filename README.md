@@ -6,11 +6,13 @@ This allows you to generate massive amounts of low quality images, then select w
 Detailed help can be found in the "Keep this prompt for later - Help" expandable section in the scripts section of the Web UI.
 
 ## Screenshots
-Adds a new "↙️ Keep this prompt for later" button in the image gallery and the fullscreen image viewer
+Adds a new "↙️ Keep this prompt for later" button in the image gallery
 
 ![gallery](https://i.imgur.com/uIDykny.jpg)
 
-![fullscreen](https://i.imgur.com/zi19AvC.jpg)
+And the fullscreen image viewer
+
+![fullscreen gallery button](https://i.imgur.com/8ckT4tp.jpg)
 
 Clicking this new button when selecting an image in the gallery will send its prompt, negative prompt, and seed to the Scratch paper tab of this script. In this example, we kept two images
 
