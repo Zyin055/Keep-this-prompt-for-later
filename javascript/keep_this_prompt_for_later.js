@@ -73,7 +73,7 @@ function keep_this_prompt_for_later_button_click() {
     //console.log("negative_prompt="+negative_prompt)
     //console.log("seed="+seed)
 
-    let new_scratch_prompt_text = scratch_prompt_text + "\\n" + prompt
+    let new_scratch_prompt_text = scratch_prompt_text + "\n" + prompt
     if (scratch_prompt_text == "") {
         if (prompt == "") {
             new_scratch_prompt_text = " "
@@ -82,7 +82,7 @@ function keep_this_prompt_for_later_button_click() {
             new_scratch_prompt_text = prompt
         }
     }
-    let new_scratch_negative_prompt_text = scratch_negative_prompt_text + "\\n" + negative_prompt
+    let new_scratch_negative_prompt_text = scratch_negative_prompt_text + "\n" + negative_prompt
     if (scratch_negative_prompt_text == "") {
         if (negative_prompt == "") {
             new_scratch_negative_prompt_text = " "
