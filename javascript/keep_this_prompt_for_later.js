@@ -69,6 +69,7 @@ function keep_this_prompt_for_later_button_click() {
     let prompt = gen_info["all_prompts"][index]
     let negative_prompt = gen_info["all_negative_prompts"][index]
     let seed = gen_info["all_seeds"][index]
+    //console.log("index="+index)
     //console.log("prompt="+prompt)
     //console.log("negative_prompt="+negative_prompt)
     //console.log("seed="+seed)

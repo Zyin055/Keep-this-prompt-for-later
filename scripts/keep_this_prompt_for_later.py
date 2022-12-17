@@ -40,14 +40,9 @@ class Script(scripts.Script):
             keep_this_prompt_for_later_button = gr.Button(value="\u2199\ufe0f Keep this prompt for later",
                                                           elem_id="keep_this_prompt_for_later_button",
                                                           )
-            keep_this_prompt_for_later_button.click(fn=None,
-                                                    scroll_to_output=True,
-                                                    inputs=[],
-                                                    outputs=[scratch_prompt_textbox],
-                                                    )
 
             keep_this_prompt_for_later_button.click(fn=None,
-                                                    scroll_to_output=True,
+                                                    scroll_to_output=False,
                                                     show_progress=False,
                                                     inputs=[],
                                                     outputs=[scratch_prompt_textbox,
@@ -98,11 +93,11 @@ class Script(scripts.Script):
                                                                        seed_textbox]
                                                               )
                     with gr.Row():
-                            ignore_batch_checkbox = gr.Checkbox(value=True,
-                                                                label="Ignore batch count/size",
-                                                                elem_id="ignore_batch_checkbox",
-                                                                )
-                            ignore_batch_checkbox.style(container=True)
+                        ignore_batch_checkbox = gr.Checkbox(value=True,
+                                                            label="Ignore batch count/size",
+                                                            elem_id="ignore_batch_checkbox",
+                                                            )
+                        ignore_batch_checkbox.style(container=True)
 
 
                 with gr.Tab("Scratch paper", elem_id="keep_this_prompt_for_later_scratch_tab_section"):
@@ -244,6 +239,8 @@ class Script(scripts.Script):
 
         negative_prompts = []
         negative_prompts = re.split("\n", negative_prompt_textbox)  # split by newline
+        if negative_prompts == ['']:
+            negative_prompts = []   # edge case when negative_prompt_textbox is empty
 
         seeds = []
         seeds = re.split(",| |\n", seed_textbox)  # split by comma, space, or newline
@@ -266,8 +263,7 @@ class Script(scripts.Script):
             highres_text = f"({total_image_count * 2} jobs with Highres fix) "
         if p.batch_size > 1:
             batched_text = f"({int(step_count / p.batch_size)} batched) "
-        print(
-            f"Multiple Prompts: Will create {total_image_count} images {highres_text}over {int(step_count)} {batched_text}steps")
+        print(f"Multiple Prompts: Will create {total_image_count} images {highres_text}over {int(step_count)} {batched_text}steps")
 
         all_prompts = []
         all_negative_prompts = []
@@ -278,6 +274,7 @@ class Script(scripts.Script):
             shared.state.job_count = p.n_iter * len(prompts)  # fixes the progress bar
 
             log(f"\nPrompt: {prompt}")
+            print(f"i={i}")
             if i < len(negative_prompts):
                 negative_prompt = negative_prompts[i]
                 log(f"Negative Prompt: {negative_prompt}")
