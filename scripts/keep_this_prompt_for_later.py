@@ -274,7 +274,6 @@ class Script(scripts.Script):
             shared.state.job_count = p.n_iter * len(prompts)  # fixes the progress bar
 
             log(f"\nPrompt: {prompt}")
-            print(f"i={i}")
             if i < len(negative_prompts):
                 negative_prompt = negative_prompts[i]
                 log(f"Negative Prompt: {negative_prompt}")
