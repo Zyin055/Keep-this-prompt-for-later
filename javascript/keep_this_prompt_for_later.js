@@ -7,21 +7,47 @@ onUiUpdate(function() {
 })
 
 
-window.addEventListener('load', function() {
+//window.addEventListener('load', function() {
+document.addEventListener("DOMContentLoaded", function() {
 	//inject our button into the fullscreen image viewer
     KeepThisPromptForLater_AddFullscreenButton()
 }, false)
 
 
 function KeepThisPromptForLater_AddFullscreenButton() {
-	let referenceNode = gradioApp().getElementById("modal_save"); //the save button at the top while viewing an image in fullscreen mode
+	const modalControls = gradioApp().querySelector("div.modalControls")
 	
-    referenceNode.insertAdjacentHTML("afterend", '<span id="KeepThisPromptForLaterFullscreenButton" class="modalSave cursor" style="grid-area:auto;" onclick="event.stopPropagation(); KeepThisPromptForLaterFullscreenButton_Click()" title="'+scriptName+' (extension)">↙️ Keep this prompt for later</span>')
-	//event.stopPropagation() stops the fullscreen view from closing when clicked
+    const modalButton = document.createElement("span")
+    modalButton.className = "modalSave cursor"
+    modalButton.id = "KeepThisPromptForLaterFullscreenButton"
+    modalButton.innerHTML = "↙️ Keep this prompt for later"
+    modalButton.addEventListener("click", KeepThisPromptForLaterFullscreenButton_Click, true)
+    modalButton.title = "[Extension] " + scriptName + " (hotkey = Enter)"
+    modalButton.style = "grid-area:auto;"
+    modalControls.appendChild(modalButton)
+	
+	const modalLightbox = gradioApp().getElementById("lightboxModal")
+	modalLightbox.addEventListener('keydown', KeepThisPromptForLater_modalKeyHandler, true)
+	
 }
 
-function KeepThisPromptForLaterFullscreenButton_Click() {
+function KeepThisPromptForLaterFullscreenButton_Click(event) {
 	//console.log("KeepThisPromptForLaterFullscreenButton_Click()")
+	event.stopPropagation() //stops the fullscreen view from closing when clicked
+	KeepThisPromptForLater_ClickButton()
+}
+
+function KeepThisPromptForLater_modalKeyHandler(event) {
+	//console.log("KeepThisPromptForLater_modalKeyHandler()")
+	//console.log("event.key="+event.key)
+    switch (event.key) {
+        case "Enter":
+            KeepThisPromptForLater_ClickButton()
+            break
+    }
+}
+
+function KeepThisPromptForLater_ClickButton() {
 	gradioApp().getElementById('keep_this_prompt_for_later_button').click() //need to do click() so the python code runs too
 }
 
