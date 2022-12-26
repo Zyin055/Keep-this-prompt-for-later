@@ -32,5 +32,7 @@ Now you change your image generation settings, such as step count and resolution
 
 
 ## Changelog
+#### 12/19/2022
+* Added 'Enter' as a hotkey for the fullscreen button
 #### 12/14/2022
 * Initial release
