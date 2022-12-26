@@ -23,7 +23,7 @@ function KeepThisPromptForLater_AddFullscreenButton() {
     modalButton.innerHTML = "↙️ Keep this prompt for later"
     modalButton.addEventListener("click", KeepThisPromptForLaterFullscreenButton_Click, true)
     modalButton.title = "[Extension] " + scriptName + " (hotkey = Enter)"
-    modalButton.style = "grid-area:auto;"
+    modalButton.style = "grid-area:auto; width:max-content;"	//width:max-content is to make it work with the Image Browser extension
     modalControls.appendChild(modalButton)
 	
 	const modalLightbox = gradioApp().getElementById("lightboxModal")
