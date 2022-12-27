@@ -36,6 +36,7 @@ class Script(scripts.Script):
         # if component.elem_id == "txt2img_generation_info_button":
         # if kwargs["elem_id"] == "open_folder":
         if component.elem_id == "open_folder":
+            #with gr.Column(scale=1):
             # this button needs to be added after the scripts dropdown somewhere
             keep_this_prompt_for_later_button = gr.Button(value="\u2199\ufe0f Keep this prompt for later",
                                                           elem_id="keep_this_prompt_for_later_button",
@@ -52,7 +53,6 @@ class Script(scripts.Script):
                                                     )
 
     def ui(self, is_img2img):
-        # print("multiple prompts and seeds ui()")
         with gr.Row(elem_id="keep_this_prompt_for_later_section"):
             with gr.Column():
                 with gr.Tab("Prompts", elem_id="keep_this_prompt_for_later_prompt_tab_section"):
@@ -263,7 +263,7 @@ class Script(scripts.Script):
             highres_text = f"({total_image_count * 2} jobs with Highres fix) "
         if p.batch_size > 1:
             batched_text = f"({int(step_count / p.batch_size)} batched) "
-        print(f"Multiple Prompts: Will create {total_image_count} images {highres_text}over {int(step_count)} {batched_text}steps")
+        print(f"Keep this prompt for later: Will create {total_image_count} images {highres_text}over {int(step_count)} {batched_text}steps")
 
         all_prompts = []
         all_negative_prompts = []
@@ -304,7 +304,7 @@ class Script(scripts.Script):
             images_list += proc.images
             i += 1
 
-        info_text = f"Multiple Prompts and Seeds - {len(images_list)} images"
+        info_text = f"Keep this prompt for later - {len(images_list)} images"
         print(f"\nFinished creating {len(images_list)} images.")
 
         return Processed(p, images_list, all_seeds[0], info_text, None, all_prompts, all_negative_prompts, all_seeds, None, 0, None)
