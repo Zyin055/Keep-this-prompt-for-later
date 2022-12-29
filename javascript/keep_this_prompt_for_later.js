@@ -3,7 +3,7 @@ let scriptName = "Keep this prompt for later"
 
 onUiUpdate(function() {
 	//set tooltips
-	gradioApp().querySelectorAll("#ignore_batch_checkbox").forEach(el => el.setAttribute("title", "If checked, each prompt will be generated once. If unchecked, each prompt will be generated (Batch count * Batch size) times with +1 added to the seed for each iamge."))
+	gradioApp().querySelectorAll("#ignore_batch_checkbox").forEach(el => el.setAttribute("title", "If checked, each prompt will be generated once. If unchecked, each prompt will be generated (Batch count * Batch size) times with +1 added to the seed for each additional image rendered."))
 })
 
 
