@@ -33,9 +33,10 @@ class Script(scripts.Script):
         global scratch_negative_prompt_textbox
         global scratch_seed_textbox
 
-        # if component.elem_id == "txt2img_generation_info_button":
-        # if kwargs["elem_id"] == "open_folder":
-        if component.elem_id == "open_folder":
+        #if component.elem_id == "open_folder":
+        #if component.elem_id == "txt2img_generation_info_button": #very bottom of the txt2img image gallery
+        if component.elem_id == "extras_tab":
+
             #with gr.Column(scale=1):
             # this button needs to be added after the scripts dropdown somewhere
             keep_this_prompt_for_later_button = gr.Button(value="\u2199\ufe0f Keep this prompt for later",
