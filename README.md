@@ -33,7 +33,7 @@ Now you change your image generation settings, such as step count and resolution
 
 ## Changelog
 #### 1/02/2023
-* Button position got moved due to an Automatic1111 updated, moved the button back to where it used to be
+* Button position got moved due to an Automatic1111 update, moved the button back to where it used to be
 #### 12/19/2022
 * Added 'Enter' as a hotkey for the fullscreen button
 #### 12/14/2022
