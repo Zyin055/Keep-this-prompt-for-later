@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 function KeepThisPromptForLater_AddFullscreenButton() {
+	//console.log("KeepThisPromptForLater_AddFullscreenButton()")
 	const modalControls = gradioApp().querySelector("div.modalControls")
 	
     const modalButton = document.createElement("span")
@@ -26,9 +27,10 @@ function KeepThisPromptForLater_AddFullscreenButton() {
     modalButton.style = "grid-area:auto; width:max-content;"	//width:max-content is to make it work with the Image Browser extension
     modalControls.appendChild(modalButton)
 	
-	const modalLightbox = gradioApp().getElementById("lightboxModal")
-	modalLightbox.addEventListener('keydown', KeepThisPromptForLater_modalKeyHandler, true)
+	const modal = gradioApp().getElementById("lightboxModal")
+	modal.addEventListener('keydown', KeepThisPromptForLater_modalKeyHandler, true)
 	
+	//console.log("KeepThisPromptForLater_AddFullscreenButton() done")
 }
 
 function KeepThisPromptForLaterFullscreenButton_Click(event) {
@@ -66,11 +68,12 @@ function keep_this_prompt_for_later_button_click() {
 
     //This JavaScript method copies the last generation info into the Scratch paper tab's textboxes of our script
 
-    let jsonText = gradioApp().querySelector("#tab_txt2img div.gr-form.overflow-hidden > div[class~='!hidden'] > label > textarea").value
+    //let jsonText = gradioApp().querySelector("#tab_txt2img div.gr-form.overflow-hidden > div[class~='!hidden'] > label > textarea").value //old
+    let jsonText = gradioApp().querySelector("#generation_info_txt2img > label > textarea").value //new 2/01/22
     //console.log("jsonText = "+jsonText)
 
     if (jsonText == "") {
-        //No image has been genereated yet
+        //No image has been generated yet
         //or we couldn't find the right text box because an update in A1111 changed it
         console.log(scriptName + ": <Button click> No generation info found for image.")
         return null

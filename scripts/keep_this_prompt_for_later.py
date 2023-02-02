@@ -187,7 +187,7 @@ class Script(scripts.Script):
                             <br>After generating images the normal way with low quality settings (ie: 512x512, low step count, non ancestral sampler), select which ones you like in the image gallery and click the new Keep this prompt for later button in the bottom right to copy the prompts/seed into the Scratch paper tab.
                             <br>
                             <br>After you are finished, click the "Move to main tab for rendering" button in the Scratch paper tab to move the text over to the Prompts tab.
-                            <br>Now that text is in the Prompts tab, the script is enabled. This is when you can change the image generation settings (ie: 512x512 -> 1024x1024 with Highres fix, higher step count) and click Generate to generate all these images at once with improved quality.
+                            <br>Now that text is in the Prompts tab, the script is enabled. This is when you can change the image generation settings (ie: 512x512 -> 1024x1024 with Hires fix, higher step count) and click Generate to generate all these images at once with improved quality.
                             <br>
                             <br>After the images are finished generating in a higher quality you can click the "Clear these textboxes" button in the Prompts tab to clear the textboxes to go for another round.
                             <br>
@@ -258,13 +258,26 @@ class Script(scripts.Script):
         total_image_count = len(prompts) * p.n_iter * p.batch_size
         step_count = p.steps * total_image_count
         batched_text = ""
-        highres_text = ""
+        hires_text = ""
         if p.enable_hr:
             step_count *= 2
-            highres_text = f"({total_image_count * 2} jobs with Highres fix) "
+            hires_text = f"({total_image_count * 2} jobs with Hires fix) "
         if p.batch_size > 1:
             batched_text = f"({int(step_count / p.batch_size)} batched) "
-        print(f"Keep this prompt for later: Will create {total_image_count} images {highres_text}over {int(step_count)} {batched_text}steps")
+        print(f"Keep this prompt for later: Will create {total_image_count} images {hires_text}over {int(step_count)} {batched_text}steps")
+
+        # print(f"len(prompts)={len(prompts)}")
+        # print(f"p.n_iter={p.n_iter}")
+        # print(f"p.batch_size={p.batch_size}")
+        # print(f"p.steps={p.steps}")
+        # print(f"p.hr_second_pass_steps={p.hr_second_pass_steps}")
+        # print(f"total_image_count={total_image_count}")
+        # print(f"step_count={step_count}")
+        # print(f"shared.state.job_count (start)={shared.state.job_count}")
+        # print(f"shared.state.job_no (start)={shared.state.job_no}")
+        # print(f"shared.state.sampling_step={shared.state.sampling_step}")
+        # print(f"shared.state.sampling_steps={shared.state.sampling_steps}")
+
 
         all_prompts = []
         all_negative_prompts = []
@@ -272,7 +285,19 @@ class Script(scripts.Script):
         images_list = []
         i = 0
         for prompt in prompts:
-            shared.state.job_count = p.n_iter * len(prompts)  # fixes the progress bar
+            # print(f"shared.state.job_count (in loop)={shared.state.job_count}")
+            # print(f"shared.state.job_no (in loop)={shared.state.job_no}")
+
+            #this fixes the progress bar in the UI, but the console stops at 50%
+            # if p.enable_hr:
+            #     shared.state.job_count = p.n_iter * len(prompts) * 2
+            #     #print(f"[KEEP THIS PROMPT FOR LATER] shared.state.job_count={shared.state.job_count} with hires")
+            # else:
+            #     shared.state.job_count = p.n_iter * len(prompts)
+            #     #print(f"[KEEP THIS PROMPT FOR LATER] shared.state.job_count={shared.state.job_count}")
+
+            shared.state.job_count = p.n_iter * len(prompts)  # used to fix the progress bar, but is broken now. UI reaches 100% when only 50% is done.
+            #shared.state.processing_has_refined_job_count = True # TESTING 1/27
 
             log(f"\nPrompt: {prompt}")
             if i < len(negative_prompts):
