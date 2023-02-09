@@ -16,6 +16,11 @@ def log(string):
         print(string)
 
 
+# determines if clicking the orange Generate button will do anything
+def is_script_ready(prompt_text):
+    return prompt_text != ""
+
+
 scratch_prompt_textbox = None
 scratch_negative_prompt_textbox = None
 scratch_seed_textbox = None
@@ -56,6 +61,14 @@ class Script(scripts.Script):
     def ui(self, is_img2img):
         with gr.Row(elem_id="keep_this_prompt_for_later_section"):
             with gr.Column():
+
+                script_ready_html = gr.HTML('<div id="keepthispromptforlater-status" title="Clicking the orange Generate button will render all the prompts in the textbox below">Script status: <span class="ready">Ready!</span></div>',
+                                            visible=False,
+                                            )
+                script_not_ready_html = gr.HTML('<div id="keepthispromptforlater-status" title="At least one prompt must be in the \'Prompts\' textbox in the Prompts tab below for this script to active, until then it does nothing">Script status: <span class="notready">Not ready</span></div>',
+                                                visible=True,
+                                                )
+
                 with gr.Tab("Prompts", elem_id="keep_this_prompt_for_later_prompt_tab_section"):
                     prompt_textbox = gr.Textbox(label="Prompts",
                                                 lines=2,
@@ -63,6 +76,21 @@ class Script(scripts.Script):
                                                 max_lines=4,
                                                 elem_id="prompt_textbox",
                                                 )
+
+                    def on_prompt_textbox_change(prompt_text):
+                        print(f"prompt_text={prompt_text}")
+                        if is_script_ready(prompt_text):
+                            return gr.HTML.update(visible=True), gr.HTML.update(visible=False)
+                        else:
+                            return gr.HTML.update(visible=False), gr.HTML.update(visible=True)
+
+                    prompt_textbox.change(
+                        fn=on_prompt_textbox_change,
+                        inputs=[prompt_textbox],
+                        outputs=[script_ready_html, script_not_ready_html],
+                        show_progress=False,
+                    )
+
                     negative_prompt_textbox = gr.Textbox(label="Negative Prompts",
                                                          lines=2,
                                                          placeholder="List of negative prompts (separate with newlines) [optional]",
@@ -162,19 +190,6 @@ class Script(scripts.Script):
                 with gr.Accordion(label="Keep this prompt for later - Help", open=False):
                     gr.HTML(
                         """
-                        <style type="text/css">
-                            .keepthispromptforlater {
-                                margin-left: 20px;
-                            }
-                            .keepthispromptforlater ol {
-                                list-style-type:decimal;
-                                margin-left:3em;
-                            }
-                            .keepthispromptforlater h3 {
-                                font-size:large;
-                            }
-                        </style>
-
                         <div class="keepthispromptforlater">
                             This script helps you generate batches of images with unique prompts and seeds.
                             <br>
@@ -232,7 +247,7 @@ class Script(scripts.Script):
 
     def run(self, p, prompt_textbox, negative_prompt_textbox, seed_textbox, ignore_batch):
 
-        if prompt_textbox == "":
+        if not is_script_ready(prompt_textbox):
             return  # generate images as if this script isn't activated
 
         prompts = []
@@ -258,13 +273,17 @@ class Script(scripts.Script):
         total_image_count = len(prompts) * p.n_iter * p.batch_size
         step_count = p.steps * total_image_count
         batched_text = ""
-        hires_text = ""
+        hires_text_job = ""
+        hires_text_steps = ""
         if p.enable_hr:
-            step_count *= 2
-            hires_text = f"({total_image_count * 2} jobs with Hires fix) "
+            step_count = (p.steps + p.hr_second_pass_steps) * total_image_count
+            #step_count *= 2
+            hires_text_job = f"({total_image_count * 2} jobs with Hires fix) "
+            hires_text_steps = f" ({p.steps * total_image_count} normal, {p.hr_second_pass_steps * total_image_count} Hires)"
         if p.batch_size > 1:
+            #step_count = p.steps * total_image_count
             batched_text = f"({int(step_count / p.batch_size)} batched) "
-        print(f"Keep this prompt for later: Will create {total_image_count} images {hires_text}over {int(step_count)} {batched_text}steps")
+        print(f"[Keep this prompt for later]: Will create {total_image_count} images {hires_text_job}over {int(step_count)} {batched_text}steps{hires_text_steps}")
 
         # print(f"len(prompts)={len(prompts)}")
         # print(f"p.n_iter={p.n_iter}")
@@ -331,7 +350,7 @@ class Script(scripts.Script):
             i += 1
 
         info_text = f"Keep this prompt for later - {len(images_list)} images"
-        print(f"\nFinished creating {len(images_list)} images.")
+        print(f"\n[Keep this prompt for later] Finished creating {len(images_list)} images.")
 
         return Processed(p, images_list, all_seeds[0], info_text, None, all_prompts, all_negative_prompts, all_seeds, None, 0, None)
         # return Processed(p, images_list, seeds[0], info_text, None, prompts, negative_prompts, seeds, None, 0, None)
