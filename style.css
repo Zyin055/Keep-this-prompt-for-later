@@ -1,0 +1,21 @@
+.keepthispromptforlater {
+	margin-left: 20px;
+}
+.keepthispromptforlater ol {
+	list-style-type:decimal;
+	margin-left:3em;
+}
+.keepthispromptforlater h3 {
+	font-size:large;
+}
+#keepthispromptforlater-status {
+	font-size: 1.4em;
+	margin:0.5em;
+	cursor: help;
+}
+#keepthispromptforlater-status > .ready {
+	color:green;
+}
+#keepthispromptforlater-status > .notready {
+	color:red;
+}
