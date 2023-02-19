@@ -30,6 +30,8 @@ Now you change your image generation settings, such as step count and resolution
 * In your Automatic1111 Web UI, go to the Extensions tab > Install from URL > URL for extension's git repository: `https://github.com/Zyin055/Keep-this-prompt-for-later`
 * Click the Install button
 
+## Known bugs
+* The progress bar doesn't work correctly with Hires fix enabled
 
 ## Changelog
 #### 1/02/2023
