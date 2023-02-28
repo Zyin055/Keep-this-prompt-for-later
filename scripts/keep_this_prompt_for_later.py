@@ -78,7 +78,7 @@ class Script(scripts.Script):
                                                 )
 
                     def on_prompt_textbox_change(prompt_text):
-                        print(f"prompt_text={prompt_text}")
+                        #print(f"prompt_text={prompt_text}")
                         if is_script_ready(prompt_text):
                             return gr.HTML.update(visible=True), gr.HTML.update(visible=False)
                         else:
