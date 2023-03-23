@@ -32,6 +32,7 @@ Now you change your image generation settings, such as step count and resolution
 
 ## Known bugs
 * The progress bar doesn't work correctly with Hires fix enabled
+* Doesn't work with newlines in the prompt
 
 ## Changelog
 #### 1/02/2023
