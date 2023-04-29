@@ -8,14 +8,7 @@
 .keepthispromptforlater h3 {
 	font-size:large;
 }
-#keepthispromptforlater-status {
-	font-size: 1.4em;
-	margin:0.5em;
-	cursor: help;
-}
-#keepthispromptforlater-status > .ready {
-	color:green;
-}
-#keepthispromptforlater-status > .notready {
-	color:red;
+.keepthispromptforlater hr {
+	margin-top:1em;
+	margin-bottom:1em;
 }

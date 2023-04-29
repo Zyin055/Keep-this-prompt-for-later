@@ -1,9 +1,10 @@
-let scriptName = "Keep this prompt for later"
+const SCRIPT_NAME = "Keep this prompt for later"    //this should match SCRIPT_TITLE in the python code
 
 
 onUiUpdate(function() {
 	//set tooltips
-	gradioApp().querySelectorAll("#ignore_batch_checkbox").forEach(el => el.setAttribute("title", "If checked, each prompt will be generated once. If unchecked, each prompt will be generated (Batch count * Batch size) times with +1 added to the seed for each additional image rendered."))
+	gradioApp().querySelectorAll("#script_keep_this_prompt_for_later_ignore_batch_checkbox").forEach(el => el.setAttribute("title", "If checked, each prompt will be generated once. If unchecked, each prompt will be generated (Batch count * Batch size) times with +1 added to the seed for each additional image rendered."))
+    gradioApp().querySelectorAll("#script_keep_this_prompt_for_later_enabled_checkbox").forEach(el => el.setAttribute("title", "Enables this script. The prompts in the textboxes below will only be used for generation if this checkbox is checked."))
 })
 
 
@@ -14,18 +15,26 @@ document.addEventListener("DOMContentLoaded", function() {
 }, false)
 
 
-function KeepThisPromptForLater_AddFullscreenButton() {
+function KeepThisPromptForLater_AddFullscreenButton() { //similar to imageviewer.js:189 DOMContentLoaded event listener
 	//console.log("KeepThisPromptForLater_AddFullscreenButton()")
-	const modalControls = gradioApp().querySelector("div.modalControls")
+
+	//const modalControls = gradioApp().querySelector("div.modalControls")  //this stopped working after a March update
+	const modalControls = document.querySelector("div.modalControls")
+	//console.log("modalControls="+modalControls)
 	
     const modalButton = document.createElement("span")
     modalButton.className = "modalSave cursor"
     modalButton.id = "KeepThisPromptForLaterFullscreenButton"
     modalButton.innerHTML = "↙️ Keep this prompt for later"
     modalButton.addEventListener("click", KeepThisPromptForLaterFullscreenButton_Click, true)
-    modalButton.title = "[Extension] " + scriptName + " (hotkey = Enter)"
+    modalButton.title = "[Extension] " + SCRIPT_NAME + " (hotkey = Enter)"
     modalButton.style = "grid-area:auto; width:max-content;"	//width:max-content is to make it work with the Image Browser extension
-    modalControls.appendChild(modalButton)
+
+    //modalControls.appendChild(modalButton)
+    //insert before the close button
+    const modalClose = document.querySelector("span.modalClose")
+    modalControls.insertBefore(modalButton, modalClose);
+
 	
 	const modal = gradioApp().getElementById("lightboxModal")
 	modal.addEventListener('keydown', KeepThisPromptForLater_modalKeyHandler, true)
@@ -50,7 +59,7 @@ function KeepThisPromptForLater_modalKeyHandler(event) {
 }
 
 function KeepThisPromptForLater_ClickButton() {
-	gradioApp().getElementById('keep_this_prompt_for_later_button').click() //need to do click() so the python code runs too
+	gradioApp().getElementById('script_keep_this_prompt_for_later_button').click() //need to do click() so the python code runs too
 }
 
 function move_to_other_tab_button_click() {
@@ -61,21 +70,15 @@ function move_to_other_tab_button_click() {
 
 function keep_this_prompt_for_later_button_click() {
 	//console.log("keep_this_prompt_for_later_button_click()")
-	
-    let scratch_prompt_text = gradioApp().querySelector('#scratch_prompt_textbox textarea').value;
-    let scratch_negative_prompt_text = gradioApp().querySelector('#scratch_negative_prompt_textbox textarea').value;
-    let scratch_seed_text = gradioApp().querySelector('#scratch_seed_textbox textarea').value;
-
-    //This JavaScript method copies the last generation info into the Scratch paper tab's textboxes of our script
 
     //let jsonText = gradioApp().querySelector("#tab_txt2img div.gr-form.overflow-hidden > div[class~='!hidden'] > label > textarea").value //old
-    let jsonText = gradioApp().querySelector("#generation_info_txt2img > label > textarea").value //new 2/01/22
+    let jsonText = gradioApp().querySelector("#generation_info_txt2img > label > textarea").value
     //console.log("jsonText = "+jsonText)
 
     if (jsonText == "") {
         //No image has been generated yet
         //or we couldn't find the right text box because an update in A1111 changed it
-        console.log(scriptName + ": <Button click> No generation info found for image.")
+        console.log(SCRIPT_NAME + ": <Button click> No generation info found for image.")
         return null
     }
 
@@ -103,6 +106,11 @@ function keep_this_prompt_for_later_button_click() {
     //console.log("negative_prompt="+negative_prompt)
     //console.log("seed="+seed)
 
+    let scratch_prompt_text = gradioApp().querySelector('#script_keep_this_prompt_for_later_prompt_textbox textarea').value;
+    let scratch_negative_prompt_text = gradioApp().querySelector('#script_keep_this_prompt_for_later_negative_prompt_textbox textarea').value;
+    let scratch_seed_text = gradioApp().querySelector('#script_keep_this_prompt_for_later_seed_textbox textarea').value;
+
+
     let new_scratch_prompt_text = scratch_prompt_text + "\n" + prompt
     if (scratch_prompt_text == "") {
         if (prompt == "") {
@@ -128,16 +136,21 @@ function keep_this_prompt_for_later_button_click() {
 
 
     //select our script from the Script dropdown, then fire the change event since setting its .value in code doesn't do that
-    let scriptSelect = gradioApp().querySelector("#script_list > label > select")
-    if (scriptSelect.value != scriptName) {
-        scriptSelect.value = scriptName
+    //let scriptSelect = gradioApp().querySelector("#script_list > label > select")
+    /*
+    let scriptSelect = gradioApp().querySelector("#script_list > label > div > div > span")
+    if (scriptSelect.value != SCRIPT_NAME) {
+        scriptSelect.value = SCRIPT_NAME
         let event = document.createEvent("HTMLEvents")
         event.initEvent("change", true, false)
         scriptSelect.dispatchEvent(event)
     }
+    */
 	
+    /*
     let scratchTab = gradioApp().querySelector("#keep_this_prompt_for_later_section > div > div.tabs > div").children[1] //2nd tab button
     scratchTab.click()
+    */
 
     return [new_scratch_prompt_text, new_scratch_negative_prompt_text, new_scratch_seed_text]
 }

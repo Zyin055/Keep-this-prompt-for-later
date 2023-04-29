@@ -1,11 +1,8 @@
 import re
-import copy
 import modules.scripts as scripts
 import modules.processing as processing
 import gradio as gr
-
 import modules.shared as shared
-
 from modules.processing import process_images, Processed
 
 verbose_logging = True  # prints the Prompt, Negative prompt, and Seed before each image is generated
@@ -16,203 +13,155 @@ def log(string):
         print(string)
 
 
-# determines if clicking the orange Generate button will do anything
-def is_script_ready(prompt_text):
-    return prompt_text != ""
-
-
-scratch_prompt_textbox = None
-scratch_negative_prompt_textbox = None
-scratch_seed_textbox = None
-
-
 class Script(scripts.Script):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.SCRIPT_TITLE = "Keep this prompt for later"
+
+
+        self.enabled_checkbox = gr.Checkbox(label="Enabled",
+                                            value=False,
+                                            elem_id="script_keep_this_prompt_for_later_enabled_checkbox",
+                                            ).unrender()
+
+
+        self.prompt_textbox = gr.Textbox(label="Prompts",
+                                         lines=2,
+                                         placeholder="List of prompts (separate with newlines) [required]",
+                                         max_lines=4,
+                                         elem_id="script_keep_this_prompt_for_later_prompt_textbox",
+                                         ).unrender()
+
+
+        self.negative_prompt_textbox = gr.Textbox(label="Negative Prompts",
+                                                  lines=2,
+                                                  placeholder="List of negative prompts (separate with newlines) [optional]",
+                                                  max_lines=4,
+                                                  elem_id="script_keep_this_prompt_for_later_negative_prompt_textbox",
+                                                  ).unrender()
+
+
+        self.seed_textbox = gr.Textbox(label="Seeds",
+                                       lines=2,
+                                       placeholder="List of seed values (separate with commas, spaces, or newlines) [optional]",
+                                       max_lines=4,
+                                       elem_id="script_keep_this_prompt_for_later_seed_textbox",
+                                       ).unrender()
+
+
+        # this button needs to be initialized here instead of being a global so that the script_dropdown_component can be sent to its .click() function
+        self.keep_this_prompt_for_later_button = gr.Button(value="\u2199\ufe0f Keep this prompt for later",
+                                                           elem_id="script_keep_this_prompt_for_later_button",
+                                                           ).unrender()
+
+
+        self.ignore_batch_checkbox = gr.Checkbox(value=True,
+                                                 label="Ignore batch count/size",
+                                                 elem_id="script_keep_this_prompt_for_later_ignore_batch_checkbox",
+                                                 ).unrender()
+        self.ignore_batch_checkbox.style(container=True)
+
+
+        self.clear_main_textboxes_button = gr.Button(value="Clear these textboxes")
+
     def title(self):
-        return "Keep this prompt for later"
+        return self.SCRIPT_TITLE
 
     def show(self, is_img2img):
         return not is_img2img  # only show in txt2img. not relevant for img2img
 
     def after_component(self, component, **kwargs):
-        global scratch_prompt_textbox
-        global scratch_negative_prompt_textbox
-        global scratch_seed_textbox
+
+        if self.is_txt2img:
+            if component.elem_id == "script_list":
+                script_dropdown_component = component
+                #print(f"found script_dropdown_component:{self.script_dropdown_component}")
+
+                # this needs to be defined here so we can get a reference to the Scripts dropdown component
+                def keep_this_prompt_for_later_button_click():
+                    #print("Python keep_this_prompt_for_later_button_click()")
+                    # select our script in the Scripts dropdown
+                    return gr.Dropdown.update(value=self.SCRIPT_TITLE)
+
+                self.keep_this_prompt_for_later_button.click(fn=keep_this_prompt_for_later_button_click,
+                                                             scroll_to_output=False,
+                                                             show_progress=False,
+                                                             inputs=[],
+                                                             outputs=[script_dropdown_component],
+                                                             )
+
 
         #if component.elem_id == "open_folder":
         #if component.elem_id == "txt2img_generation_info_button": #very bottom of the txt2img image gallery
         if component.elem_id == "extras_tab":
+            self.keep_this_prompt_for_later_button.render()
+            self.keep_this_prompt_for_later_button.click(fn=None,
+                                                         scroll_to_output=False,
+                                                         show_progress=False,
+                                                         inputs=[],
+                                                         outputs=[self.prompt_textbox,
+                                                                  self.negative_prompt_textbox,
+                                                                  self.seed_textbox],
+                                                         _js="function() { return keep_this_prompt_for_later_button_click() }",
+                                                         )
 
-            #with gr.Column(scale=1):
-            # this button needs to be added after the scripts dropdown somewhere
-            keep_this_prompt_for_later_button = gr.Button(value="\u2199\ufe0f Keep this prompt for later",
-                                                          elem_id="keep_this_prompt_for_later_button",
-                                                          )
-
-            keep_this_prompt_for_later_button.click(fn=None,
-                                                    scroll_to_output=False,
-                                                    show_progress=False,
-                                                    inputs=[],
-                                                    outputs=[scratch_prompt_textbox,
-                                                             scratch_negative_prompt_textbox,
-                                                             scratch_seed_textbox],
-                                                    _js="function() { return keep_this_prompt_for_later_button_click() }",
-                                                    )
 
     def ui(self, is_img2img):
         with gr.Row(elem_id="keep_this_prompt_for_later_section"):
             with gr.Column():
 
-                script_ready_html = gr.HTML('<div id="keepthispromptforlater-status" title="Clicking the orange Generate button will render all the prompts in the textbox below">Script status: <span class="ready">Ready!</span></div>',
-                                            visible=False,
-                                            )
-                script_not_ready_html = gr.HTML('<div id="keepthispromptforlater-status" title="At least one prompt must be in the \'Prompts\' textbox in the Prompts tab below for this script to active, until then it does nothing">Script status: <span class="notready">Not ready</span></div>',
-                                                visible=True,
-                                                )
+                self.enabled_checkbox.render()
+                self.prompt_textbox.render()
+                self.negative_prompt_textbox.render()
+                self.seed_textbox.render()
 
-                with gr.Tab("Prompts", elem_id="keep_this_prompt_for_later_prompt_tab_section"):
-                    prompt_textbox = gr.Textbox(label="Prompts",
-                                                lines=2,
-                                                placeholder="List of prompts (separate with newlines) [required]",
-                                                max_lines=4,
-                                                elem_id="prompt_textbox",
-                                                )
+                with gr.Row():
+                    with gr.Column(scale=1, min_width=1):
+                        pass
+                    with gr.Column(scale=1):
+                        pass
+                    with gr.Column(scale=1):
+                        self.clear_main_textboxes_button.render()
 
-                    def on_prompt_textbox_change(prompt_text):
-                        #print(f"prompt_text={prompt_text}")
-                        if is_script_ready(prompt_text):
-                            return gr.HTML.update(visible=True), gr.HTML.update(visible=False)
-                        else:
-                            return gr.HTML.update(visible=False), gr.HTML.update(visible=True)
+                        def clear_main_textboxes():
+                            # remove all text in the main tab textboxes
+                            return "", "", "", False
 
-                    prompt_textbox.change(
-                        fn=on_prompt_textbox_change,
-                        inputs=[prompt_textbox],
-                        outputs=[script_ready_html, script_not_ready_html],
-                        show_progress=False,
-                    )
+                        self.clear_main_textboxes_button.click(clear_main_textboxes,
+                                                               inputs=[],
+                                                               outputs=[self.prompt_textbox,
+                                                                        self.negative_prompt_textbox,
+                                                                        self.seed_textbox,
+                                                                        self.enabled_checkbox]
+                                                               )
 
-                    negative_prompt_textbox = gr.Textbox(label="Negative Prompts",
-                                                         lines=2,
-                                                         placeholder="List of negative prompts (separate with newlines) [optional]",
-                                                         max_lines=4,
-                                                         elem_id="negative_prompt_textbox",
-                                                         )
-                    seed_textbox = gr.Textbox(label="Seeds",
-                                              lines=2,
-                                              placeholder="List of seed values (separate with commas, spaces, or newlines) [optional]",
-                                              max_lines=4,
-                                              elem_id="seed_textbox",
-                                              )
-
-                    with gr.Row():
-                        with gr.Column(scale=1, min_width=1):
-                            pass
-                        with gr.Column(scale=1):
-                            pass
-                        with gr.Column(scale=1):
-                            def clear_main_textboxes():
-                                # remove all text in the main tab textboxes
-                                return "", "", ""
-
-                            clear_main_textboxes_button = gr.Button(value="Clear these textboxes")
-                            clear_main_textboxes_button.click(clear_main_textboxes,
-                                                              inputs=[],
-                                                              outputs=[prompt_textbox,
-                                                                       negative_prompt_textbox,
-                                                                       seed_textbox]
-                                                              )
-                    with gr.Row():
-                        ignore_batch_checkbox = gr.Checkbox(value=True,
-                                                            label="Ignore batch count/size",
-                                                            elem_id="ignore_batch_checkbox",
-                                                            )
-                        ignore_batch_checkbox.style(container=True)
+                with gr.Row():
+                    self.ignore_batch_checkbox.render()
 
 
-                with gr.Tab("Scratch paper", elem_id="keep_this_prompt_for_later_scratch_tab_section"):
-                    global scratch_prompt_textbox
-                    global scratch_negative_prompt_textbox
-                    global scratch_seed_textbox
-
-                    scratch_prompt_textbox = gr.Textbox(label="Scratch paper - Prompts",
-                                                        placeholder="This textbox is used as temporary storage for prompts",
-                                                        lines=2,
-                                                        max_lines=4,
-                                                        elem_id="scratch_prompt_textbox",
-                                                        )
-                    scratch_negative_prompt_textbox = gr.Textbox(label="Scratch paper - Negative Prompts",
-                                                                 placeholder="This textbox is used as temporary storage for negative prompts",
-                                                                 lines=2,
-                                                                 max_lines=4,
-                                                                 elem_id="scratch_negative_prompt_textbox",
-                                                                 )
-                    scratch_seed_textbox = gr.Textbox(label="Scratch paper - Seeds",
-                                                      placeholder="This textbox is used as temporary storage for seeds",
-                                                      lines=2,
-                                                      max_lines=4,
-                                                      elem_id="scratch_seed_textbox",
-                                                      )
-
-                    with gr.Row():
-                        # with gr.Column(scale=1, min_width=1):
-                        #    pass
-                        with gr.Column(scale=1):
-                            def copy_textboxes(a, b, c):
-                                return a, b, c
-
-                            def clear_scratch_textboxes():
-                                # remove all text in the scratch paper textboxes
-                                return "", "", ""
-
-                            move_to_other_tab_button = gr.Button(value="Move text to main tab for rendering")
-                            move_to_other_tab_button.click(fn=copy_textboxes,
-                                                           inputs=[scratch_prompt_textbox,
-                                                                   scratch_negative_prompt_textbox,
-                                                                   scratch_seed_textbox],
-                                                           outputs=[prompt_textbox,
-                                                                    negative_prompt_textbox,
-                                                                    seed_textbox])
-                            move_to_other_tab_button.click(fn=clear_scratch_textboxes,
-                                                           inputs=[],
-                                                           outputs=[scratch_prompt_textbox,
-                                                                    scratch_negative_prompt_textbox,
-                                                                    scratch_seed_textbox])
-                            move_to_other_tab_button.click(fn=None,
-                                                           inputs=[],
-                                                           outputs=[scratch_prompt_textbox,
-                                                                    scratch_negative_prompt_textbox,
-                                                                    scratch_seed_textbox],
-                                                           _js="function() { return move_to_other_tab_button_click() }",
-                                                           )
-                        with gr.Column(scale=2, min_width=1):
-                            pass
-
-                with gr.Accordion(label="Keep this prompt for later - Help", open=False):
+                with gr.Accordion(label="Help - Keep this prompt for later", open=False):
                     gr.HTML(
                         """
                         <div class="keepthispromptforlater">
                             This script helps you generate batches of images with unique prompts and seeds.
                             <br>
-                            <br>This script will only activate when one or more prompts are typed in the Prompts textbox in the Prompts tab.
+                            <br>This script will only activate when the Enabled checkbox is checked.
                             <br>
                             <br>This script adds a "\u2199\ufe0f Keep this prompt for later" button below the image gallery and the full screen image viewer. Read the Workflow section below to learn how it works.
                             <br>
                             <br><hr>
                             <br><h3>Workflow:</h3>
-                            <br>After generating images the normal way with low quality settings (ie: 512x512, low step count, non ancestral sampler), select which ones you like in the image gallery and click the new Keep this prompt for later button in the bottom right to copy the prompts/seed into the Scratch paper tab.
+                            <br>After generating images the normal way with low quality settings (ie: 512x512, low step count, non ancestral sampler), select which ones you like in the image gallery and click the new Keep this prompt for later button in the bottom right to copy the prompts/seed into the textboxes above.
                             <br>
-                            <br>After you are finished, click the "Move to main tab for rendering" button in the Scratch paper tab to move the text over to the Prompts tab.
-                            <br>Now that text is in the Prompts tab, the script is enabled. This is when you can change the image generation settings (ie: 512x512 -> 1024x1024 with Hires fix, higher step count) and click Generate to generate all these images at once with improved quality.
+                            <br>After you are finished, click the "Enabled" checkbox to activate this script. This is when you can change the image generation settings (ie: 512x512 -> 1024x1024 with Hires fix, higher step count) and click Generate to generate all these images at once with improved quality.
                             <br>
-                            <br>After the images are finished generating in a higher quality you can click the "Clear these textboxes" button in the Prompts tab to clear the textboxes to go for another round.
+                            <br>After the images are finished generating in a higher quality you can click the "Clear these textboxes" button to clear the textboxes to go for another round.
                             <br>
                             <br><hr>
                             <br><h3>Details:</h3>
-                            <br>If there are no prompts entered, then images will be generated as normal, as if this script wasn't running.
-                            <br>But if there are prompts entered, then each prompts will be generated using the aligned negative prompt and seed.
-                            <br>
                             <br>If you decide to enter text manually, and if there are more prompts entered than negative prompts or seeds, then the original negative prompt and/or seed will be used.
-                            <br>
                             <br>
                             <br><hr>
                             <br><h3>Example:</h3>
@@ -243,11 +192,11 @@ class Script(scripts.Script):
                         </div>
                         """)
 
-        return [prompt_textbox, negative_prompt_textbox, seed_textbox, ignore_batch_checkbox]
+        return [self.prompt_textbox, self.negative_prompt_textbox, self.seed_textbox, self.ignore_batch_checkbox, self.enabled_checkbox]
 
-    def run(self, p, prompt_textbox, negative_prompt_textbox, seed_textbox, ignore_batch):
+    def run(self, p, prompt_textbox, negative_prompt_textbox, seed_textbox, ignore_batch, enabled):
 
-        if not is_script_ready(prompt_textbox):
+        if not enabled:
             return  # generate images as if this script isn't activated
 
         prompts = []
@@ -318,7 +267,8 @@ class Script(scripts.Script):
             shared.state.job_count = p.n_iter * len(prompts)  # used to fix the progress bar, but is broken now. UI reaches 100% when only 50% is done.
             #shared.state.processing_has_refined_job_count = True # TESTING 1/27
 
-            log(f"\nPrompt: {prompt}")
+            log(f"\n[Keep this prompt for later] {i+1}/{total_image_count}")
+            log(f"Prompt: {prompt}")
             if i < len(negative_prompts):
                 negative_prompt = negative_prompts[i]
                 log(f"Negative Prompt: {negative_prompt}")
