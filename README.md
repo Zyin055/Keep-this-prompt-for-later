@@ -14,15 +14,11 @@ And the fullscreen image viewer
 
 ![fullscreen gallery button](https://i.imgur.com/8ckT4tp.jpg)
 
-Clicking this new button when selecting an image in the gallery will send its prompt, negative prompt, and seed to the Scratch paper tab of this script. In this example, we kept two images
-
-![script scratch paper](https://i.imgur.com/4I8iRyb.jpg)
-
-Click the "Move text to main tab for rendering" button in the Scratch paper tab. This enables the script for the next time you click Generate.
+Clicking this new button when selecting an image in the gallery will send its prompt, negative prompt, and seed to the textboxes of this script. In this example, we kept two images
 
 ![script prompts tab](https://i.imgur.com/FcusSy7.jpg)
 
-Now you change your image generation settings, such as step count and resolution (with Hires fix enabled) to produce higher quality images. Then click the orange Generate button to create your images.
+Now you change your image generation settings, such as step count and resolution (with Hires fix enabled) to produce higher quality images. Then check "Enable", and click the orange Generate button to create your images.
 
 ![config](https://i.imgur.com/n72l72D.jpg)
 
