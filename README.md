@@ -27,13 +27,14 @@ Now you change your image generation settings, such as step count and resolution
 * Click the Install button
 
 ## Known bugs
+* [v1.1.0](https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases/tag/v1.1.0) causes the script dropdown to not be auto changed
 * The progress bar doesn't work correctly with Hires fix enabled
 * Doesn't work with newlines in the prompt
 
 ## Changelog
 #### 4/28/2023
 * Streamlined the UI by removing the scratch paper tab and replacing it with an "Enable" checkbox
-* Fixes for the March 28 A1111 update
+* Fixes for the March 28 A1111 update [v1.0.0-pre](https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases/tag/v1.0.0-pre)
 #### 1/02/2023
 * Button position got moved due to an Automatic1111 update, moved the button back to where it used to be
 #### 12/19/2022
