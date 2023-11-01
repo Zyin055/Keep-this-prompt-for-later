@@ -1,14 +1,5 @@
 const SCRIPT_NAME = "Keep this prompt for later"    //this should match SCRIPT_TITLE in the python code
 
-
-onUiUpdate(function() {
-	//set tooltips
-	gradioApp().querySelectorAll("#script_keep_this_prompt_for_later_ignore_batch_checkbox").forEach(el => el.setAttribute("title", "If checked, each prompt will be generated once. If unchecked, each prompt will be generated (Batch count * Batch size) times with +1 added to the seed for each additional image rendered."))
-    gradioApp().querySelectorAll("#script_keep_this_prompt_for_later_enabled_checkbox").forEach(el => el.setAttribute("title", "Enables this script. The prompts in the textboxes below will only be used for generation if this checkbox is checked."))
-})
-
-
-//window.addEventListener('load', function() {
 document.addEventListener("DOMContentLoaded", function() {
 	//inject our button into the fullscreen image viewer
     KeepThisPromptForLater_AddFullscreenButton()
@@ -78,7 +69,7 @@ function keep_this_prompt_for_later_button_click() {
     if (jsonText == "") {
         //No image has been generated yet
         //or we couldn't find the right text box because an update in A1111 changed it
-        console.log(SCRIPT_NAME + ": <Button click> No generation info found for image.")
+        console.log(SCRIPT_NAME + ": [ERROR] No generation info found for image.")
         return null
     }
 
@@ -96,7 +87,7 @@ function keep_this_prompt_for_later_button_click() {
         index = 0
     }
     else {
-        index = selectedIndex
+        index = selectedIndex - gen_info["index_of_first_image"]    //"index_of_first_image" is 1 if an image grid is shown, otherwise 0
     }
     let prompt = gen_info["all_prompts"][index]
     let negative_prompt = gen_info["all_negative_prompts"][index]
@@ -133,24 +124,6 @@ function keep_this_prompt_for_later_button_click() {
     if (scratch_seed_text == "") {
         new_scratch_seed_text = seed
     }
-
-
-    //select our script from the Script dropdown, then fire the change event since setting its .value in code doesn't do that
-    //let scriptSelect = gradioApp().querySelector("#script_list > label > select")
-    /*
-    let scriptSelect = gradioApp().querySelector("#script_list > label > div > div > span")
-    if (scriptSelect.value != SCRIPT_NAME) {
-        scriptSelect.value = SCRIPT_NAME
-        let event = document.createEvent("HTMLEvents")
-        event.initEvent("change", true, false)
-        scriptSelect.dispatchEvent(event)
-    }
-    */
-	
-    /*
-    let scratchTab = gradioApp().querySelector("#keep_this_prompt_for_later_section > div > div.tabs > div").children[1] //2nd tab button
-    scratchTab.click()
-    */
 
     return [new_scratch_prompt_text, new_scratch_negative_prompt_text, new_scratch_seed_text]
 }

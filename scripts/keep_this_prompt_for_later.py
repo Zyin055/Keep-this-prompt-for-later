@@ -3,6 +3,7 @@ import modules.scripts as scripts
 import modules.processing as processing
 import gradio as gr
 import modules.shared as shared
+from modules.ui_components import ToolButton
 from modules.processing import process_images, Processed
 
 verbose_logging = True  # prints the Prompt, Negative prompt, and Seed before each image is generated
@@ -21,9 +22,10 @@ class Script(scripts.Script):
         self.SCRIPT_TITLE = "Keep this prompt for later"
 
 
-        self.enabled_checkbox = gr.Checkbox(label="Enabled",
+        self.enabled_checkbox = gr.Checkbox(label="Enable",
                                             value=False,
                                             elem_id="script_keep_this_prompt_for_later_enabled_checkbox",
+                                            tooltip="Enables this script. The prompts in the textboxes below will only be used for generation if this checkbox is checked.",
                                             ).unrender()
 
 
@@ -52,16 +54,20 @@ class Script(scripts.Script):
 
 
         # this button needs to be initialized here instead of being a global so that the script_dropdown_component can be sent to its .click() function
-        self.keep_this_prompt_for_later_button = gr.Button(value="\u2199\ufe0f Keep this prompt for later",
-                                                           elem_id="script_keep_this_prompt_for_later_button",
-                                                           ).unrender()
-
+        # self.keep_this_prompt_for_later_button = gr.Button(value="\u2199\ufe0f Keep this prompt for later",
+        #                                                    elem_id="script_keep_this_prompt_for_later_button",
+        #                                                    ).unrender()
+        self.keep_this_prompt_for_later_button = ToolButton("\u2199\ufe0f",
+                                                            elem_id="script_keep_this_prompt_for_later_button",
+                                                            tooltip="[Extension] Keep this prompt for later",
+                                                            ).unrender()
 
         self.ignore_batch_checkbox = gr.Checkbox(value=True,
                                                  label="Ignore batch count/size",
                                                  elem_id="script_keep_this_prompt_for_later_ignore_batch_checkbox",
+                                                 tooltip="If checked, each prompt will be generated once. If unchecked, each prompt will be generated (Batch count * Batch size) times with +1 added to the seed for each additional image rendered.",
                                                  ).unrender()
-        self.ignore_batch_checkbox.style(container=True)
+        #self.ignore_batch_checkbox.style(container=True)
 
 
         self.clear_main_textboxes_button = gr.Button(value="Clear these textboxes")
@@ -93,9 +99,8 @@ class Script(scripts.Script):
                                                              )
 
 
-        #if component.elem_id == "open_folder":
-        #if component.elem_id == "txt2img_generation_info_button": #very bottom of the txt2img image gallery
-        if component.elem_id == "extras_tab":
+        #if component.elem_id == "extras_tab":  #no longer exists in A1111 1.6.0
+        if component.elem_id == "txt2img_send_to_extras":
             self.keep_this_prompt_for_later_button.render()
             self.keep_this_prompt_for_later_button.click(fn=None,
                                                          scroll_to_output=False,
