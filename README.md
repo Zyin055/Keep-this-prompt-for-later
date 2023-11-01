@@ -6,9 +6,9 @@ This allows you to generate massive amounts of low quality images, then select w
 Detailed help can be found in the "Keep this prompt for later - Help" expandable section in the scripts section of the Web UI.
 
 ## Screenshots
-Adds a new "↙️ Keep this prompt for later" button in the image gallery
+Adds a new "↙️" button in the image gallery
 
-![gallery](https://i.imgur.com/uIDykny.jpg)
+![gallery](https://i.imgur.com/rBkZhxq.jpg)
 
 And the fullscreen image viewer
 
@@ -31,6 +31,9 @@ Now you change your image generation settings, such as step count and resolution
 * Doesn't work with newlines in the prompt
 
 ## Changelog
+#### 9/01/2023
+* Updated for A1111 1.6.0. This version is not backwards compatible with older A1111 versions
+* Fixed bug where wrong image is selected if image grids are shown in the web ui
 #### 4/28/2023
 * Streamlined the UI by removing the scratch paper tab and replacing it with an "Enable" checkbox
 * Fixes for the March 28 A1111 update [v1.0.0-pre](https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases/tag/v1.0.0-pre)
