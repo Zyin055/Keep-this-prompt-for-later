@@ -1,7 +1,7 @@
 ## What does this do?
 This [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) extension allows you to improve your image generation workflow by letting you save the prompt, negative prompt, and seed for selected images you generate so that you can generate them again with higher quality settings.
 
-This allows you to generate massive amounts of low quality images, then select which ones you would like to keep and regenerate in higher quality all in one batch.
+This allows you to generate massive amounts of low quality images, then select which ones you would like to keep and regenerate them in higher quality all in one go.
 
 Detailed help can be found in the "Keep this prompt for later - Help" expandable section in the scripts section of the Web UI.
 
@@ -27,7 +27,6 @@ Now you change your image generation settings, such as step count and resolution
 * Click the Install button
 
 ## Known bugs
-* [v1.1.0](https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases/tag/v1.1.0) causes the script dropdown to not be auto changed
 * The progress bar doesn't work correctly with Hires fix enabled
 * Doesn't work with newlines in the prompt
 
