@@ -31,6 +31,12 @@ Now you change your image generation settings, such as step count and resolution
 * Doesn't work with newlines in the prompt
 
 ## Changelog
+<details>
+    <summary>Click to view Changelog</summary>
+
+#### 6/02/2024
+* Fixed a bug that caused hires prompts to be incorrectly set
+* Shows the prompt used to generate the selected image in the image gallery instead of placeholder text
 #### 9/01/2023
 * Updated for A1111 1.6.0. This version is not backwards compatible with older A1111 versions
 * Fixed bug where wrong image is selected if image grids are shown in the web ui
