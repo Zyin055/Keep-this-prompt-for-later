@@ -253,9 +253,11 @@ class Script(scripts.Script):
 
 
         all_prompts = []
+        all_hr_prompts = []
         all_negative_prompts = []
         all_seeds = []
         images_list = []
+        infotexts = [] # the text displayed under each image in the image gallery
         i = 0
         for prompt in prompts:
             # print(f"shared.state.job_count (in loop)={shared.state.job_count}")
@@ -293,20 +295,44 @@ class Script(scripts.Script):
             for a in range(p.batch_size):
                 for b in range(p.n_iter):
                     all_prompts.append(prompt)
+                    all_hr_prompts.append(prompt)
                     all_negative_prompts.append(negative_prompt)
                     all_seeds.append(str(int(seed) + j))
+                    
+                    # using processing.create_infotext() causes the first image to miss some metadata, and all images after the first to show the wrong prompt, so just be lazy and add the prompt manually
+                    infotexts.append(prompt)
+                    #infotexts.append(processing.create_infotext(p, all_prompts, all_seeds, all_subseeds=None, comments=None, iteration=b, position_in_batch=a, use_main_prompt=False, index=None, all_negative_prompts=all_negative_prompts))
+                    
                     j += 1
 
             p.prompt = prompt
             p.negative_prompts = negative_prompt
             p.seed = seed
+            
+            p.hr_prompt = prompt #this needs to be explicity set, otherwise it uses the prompt of the first image
+            p.main_prompt = prompt #don't think this needs to be set, but doingt it for completeness
+            #p.all_prompts = None
+            #p.hr_prompts = None
+            #p.all_hr_prompts = None
+            
+            # print(f"p.prompt={p.prompt}")
+            # print(f"p.all_prompts={p.all_prompts}")
+            # print(f"p.is_hr_pass={p.is_hr_pass}")
+            # print(f"p.main_prompt={p.main_prompt}")
+            # print(f"p.main_negative_prompt={p.main_negative_prompt}")
+            # print(f"p.hr_prompt={p.hr_prompt}")
+            # print(f"p.hr_prompts={p.hr_prompts}")
+            # print(f"p.all_hr_prompts={p.all_hr_prompts}")
+
             proc = process_images(p)
             images_list += proc.images
             i += 1
 
-        info_text = f"Keep this prompt for later - {len(images_list)} images"
+        info = f"Keep this prompt for later - {len(images_list)} images" #text under the image gallery before a specific image has been selected
+        subseed = None
+        all_subseeds = None
+        index_of_first_image = 0
+        comments = None # doesn't seem to do anything
         print(f"\n[Keep this prompt for later] Finished creating {len(images_list)} images.")
 
-        return Processed(p, images_list, all_seeds[0], info_text, None, all_prompts, all_negative_prompts, all_seeds, None, 0, None)
-        # return Processed(p, images_list, seeds[0], info_text, None, prompts, negative_prompts, seeds, None, 0, None)
-        # (p: StableDiffusionProcessing, images_list, seed=-1, info="", subseed=None, all_prompts=None, all_negative_prompts=None, all_seeds=None, all_subseeds=None, index_of_first_image=0, infotexts=None)
+        return Processed(p, images_list, all_seeds[0], info, subseed, all_prompts, all_negative_prompts, all_seeds, all_subseeds, index_of_first_image, infotexts, comments)
